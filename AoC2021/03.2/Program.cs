@@ -4,37 +4,44 @@ class Program
 {
     static void Main(string[] args)
     {
-        string[] lines = File.ReadLines("in.txt").ToArray();
+        string[] numbers = File.ReadLines("in.txt").ToArray();
 
-        int currentDepth = 0;
-        int currentPosition = 0;
-        int currentAim = 0;
+        var bits = numbers[0].Length;
 
-        for (int i = 0; i < lines.Length; i++)
+        string[] oxygen = new string[numbers.Length];
+        string[] co2 = new string[numbers.Length];
+        numbers.CopyTo(oxygen, 0);
+        numbers.CopyTo(co2, 0);
+
+        // oxygen
+        for (int i = 0; i < bits; i++)
         {
-            var operation = lines[i].Split(' ');
+            int no1 = oxygen.Select(f => f[i]).Count(f => f == '1');
+            int no0 = oxygen.Select(f => f[i]).Count(f => f == '0');
+            char mostCommon = (no1 >= no0) ? '1' : '0';
 
-            var op = operation[0];
-            var val = Convert.ToInt32(operation[1]);
+            oxygen = oxygen.Where(f => f[i] == mostCommon).ToArray();
 
-            switch (op)
-            {
-                case "forward":
-                    currentPosition += val;
-                    currentDepth += (currentAim * val);
-                    break;
-
-                case "down":
-                    currentAim += val;
-                    break;
-
-                case "up":
-                    currentAim -= val;
-                    break;
-            }
+            if (oxygen.Length == 1) break;
         }
 
-        Console.WriteLine(currentPosition * currentDepth);
+        // co2
+        for (int i = 0; i < bits; i++)
+        {
+            int no1 = co2.Select(f => f[i]).Count(f => f == '1');
+            int no0 = co2.Select(f => f[i]).Count(f => f == '0');
+            char leastCommon = (no1 < no0) ? '1' : '0';
+
+            co2 = co2.Where(f => f[i] == leastCommon).ToArray();
+
+            if (co2.Length == 1) break;
+        }
+
+        int o = Convert.ToInt32(new string(oxygen.First()), 2);
+        int c = Convert.ToInt32(new string(co2.First()), 2);
+
+        Console.WriteLine(o * c);
         Console.ReadKey();
     }
 }
+

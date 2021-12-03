@@ -1,39 +1,26 @@
-﻿using System;
-
-class Program
+﻿class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
-        string[] lines = File.ReadLines("in.txt").ToArray();
+        string[] numbers = File.ReadLines("in.txt").ToArray();
 
-        int currentDepth = 0;
-        int currentPosition = 0;
+        var bits = numbers[0].Length;
+        char[] gamma = new char[bits];
+        char[] epsilon = new char[bits];
 
-
-        for (int i = 0; i < lines.Length; i++)
+        for (int i = 0; i < bits; i++)
         {
-            var operation = lines[i].Split(' ');
+            int no1 = numbers.Select(f => f[i]).Count(f => f == '1');
+            int no0 = numbers.Select(f => f[i]).Count(f => f == '0');
 
-            var op = operation[0];
-            var val = Convert.ToInt32(operation[1]);
-
-            switch(op)
-            {
-                case "forward":
-                    currentPosition += val;
-                    break;
-
-                case "down":
-                    currentDepth += val;
-                    break;
-
-                case "up":
-                    currentDepth -= val;
-                    break;
-            }
+            gamma[i] += (no1 > no0) ? '1' : '0';
+            epsilon[i] += (no1 < no0) ? '1' : '0';
         }
 
-        Console.WriteLine(currentPosition * currentDepth);
+        int g = Convert.ToInt32(new string(gamma), 2);
+        int e = Convert.ToInt32(new string(epsilon), 2);
+
+        Console.WriteLine(g * e);
         Console.ReadKey();
     }
 }
