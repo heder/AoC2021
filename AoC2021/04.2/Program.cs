@@ -19,7 +19,6 @@
             }
 
             boards.Add(b);
-
             line++;
         }
 
@@ -76,7 +75,7 @@ class Board
 
         foreach (var item in lines)
         {
-            if (item.All(f => f.Marked == true) == true)
+            if (item.All(f => f.Marked))
             {
                 return true;
             }
