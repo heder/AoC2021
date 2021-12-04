@@ -2,7 +2,7 @@
 
 class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
         string[] numbers = File.ReadLines("in.txt").ToArray();
 

@@ -1,6 +1,6 @@
 ﻿class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
         int[] lines = File.ReadLines("in.txt").Select(f => Convert.ToInt32(f)).ToArray();
 
