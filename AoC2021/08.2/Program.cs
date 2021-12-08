@@ -18,9 +18,9 @@
             map.Add(2, x.Single(f => f.Length == 5 && f.Count(g => map[4].Contains(g)) == 2));
             map.Add(5, x.Single(f => f.Length == 5 && f.Count(g => map[2].Contains(g)) == 3));
             map.Add(3, x.Single(f => f.Length == 5 && f.Count(g => map[2].Contains(g)) == 4 && f.Count(g => map[5].Contains(g)) == 4));
-            map.Add(0, x.Single(f => f.Length == 6 && f.Count(g => map[2].Contains(g)) == 4 && f.Count(g => map[5].Contains(g)) == 4));
-            map.Add(6, x.Single(f => f.Length == 6 && f.Count(g => map[2].Contains(g)) == 4 && f.Count(g => map[5].Contains(g)) == 5 && f.Count(g => map[3].Contains(g)) == 4));
-            map.Add(9, x.Single(f => f.Length == 6 && f.Count(g => map[2].Contains(g)) == 4 && f.Count(g => map[5].Contains(g)) == 5 && f.Count(g => map[3].Contains(g)) == 5));
+            map.Add(0, x.Single(f => f.Length == 6 && f.Count(g => map[5].Contains(g)) == 4));
+            map.Add(6, x.Single(f => f.Length == 6 && f.Count(g => map[5].Contains(g)) == 5 && f.Count(g => map[3].Contains(g)) == 4));
+            map.Add(9, x.Single(f => f.Length == 6 && f.Count(g => map[5].Contains(g)) == 5 && f.Count(g => map[3].Contains(g)) == 5));
 
             string s = "";
             foreach (var item in splitted[1].Trim().Split(' '))
