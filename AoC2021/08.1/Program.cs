@@ -2,27 +2,27 @@
 {
     static void Main()
     {
-        List<int> crabs = File.ReadLines("in.txt").First().Split(',').Select(f => Convert.ToInt32(f)).ToList();
+        var lines = File.ReadLines("in.txt").ToArray();
 
-        var lbound = crabs.Min();
-        var rbound = crabs.Max();
+        int noOf1 = 0;
+        int noOf4 = 0;
+        int noOf7 = 0;
+        int noOf8 = 0;
 
-        // bf
-        int consumption;
-        int lowest = int.MaxValue;
-        for (int i = lbound; i <= rbound; i++)
+        for (int i = 0; i < lines.Length; i++)
         {
-            consumption = 0;
+            var splitted = lines[i].Split('|');
+            var digits = splitted[1].Trim().Split(' ').ToList();
 
-            foreach (var crab in crabs)
-            {
-                consumption += Math.Abs(crab - i);
-            }
-
-            lowest = Math.Min(consumption, lowest);
+            noOf1 += digits.Count(f => f.Length == 2);
+            noOf4 += digits.Count(f => f.Length == 4);
+            noOf7 += digits.Count(f => f.Length == 3);
+            noOf8 += digits.Count(f => f.Length == 7);
         }
 
-        Console.WriteLine(lowest);
+        int tot = noOf1 + noOf4 + noOf7 + noOf8;
+
+        Console.WriteLine(tot);
         Console.ReadKey();
     }
 }
