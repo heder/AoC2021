@@ -5,6 +5,7 @@
         var lines = File.ReadLines("in.txt").ToArray();
 
         Dictionary<char, char> tokens = new() { { '(', ')' }, { '[', ']' }, { '{', '}' }, { '<', '>' } };
+        Dictionary<char, int> scoreMap = new() { { ')', 1 }, { ']', 2 }, { '}', 3 }, { '>', 4 } };
         List<List<char>> autoCompletes = new();
 
         foreach (var line in lines)
@@ -19,8 +20,7 @@
                 }
                 else if (tokens.Values.Contains(token))
                 {
-                    var t = stack.Peek();
-                    if (tokens[t] == token)
+                    if (tokens[stack.Peek()] == token)
                     {
                         stack.Pop();
                     }
@@ -32,7 +32,7 @@
                 }
 
                 // Incomplete row, unwind stack
-                if (i == line.Length - 1) 
+                if (i == line.Length - 1)
                 {
                     autoCompletes.Add(stack.ToList());
                 }
@@ -43,34 +43,7 @@
         foreach (var i in autoCompletes)
         {
             long score = 0;
-
-            foreach (var item in i)
-            {
-                var x = tokens[item];
-                score *= 5;
-                switch (x)
-                {
-                    case ')':
-                        score += 1;
-                        break;
-
-                    case ']':
-                        score += 2;
-                        break;
-
-                    case '}':
-                        score += 3;
-                        break;
-
-                    case '>':
-                        score += 4;
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-
+            i.ForEach(f => score = (score * 5) + scoreMap[tokens[f]]);
             scores.Add(score);
         }
 

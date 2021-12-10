@@ -5,6 +5,7 @@
         var lines = File.ReadLines("in.txt").ToArray();
 
         Dictionary<char, char> tokens = new() { { '(', ')' }, { '[', ']' }, { '{', '}' }, { '<', '>' } };
+        Dictionary<char, int> scoreMap = new() { { ')', 3 }, { ']', 57 }, { '}', 1197 }, { '>', 25137 } };
         List<char> illegalChars = new();
 
         foreach (var line in lines)
@@ -19,8 +20,7 @@
                 }
                 else if (tokens.Values.Contains(token))
                 {
-                    var t = stack.Peek();
-                    if (tokens[t] == token)
+                    if (tokens[stack.Peek()] == token)
                     {
                         stack.Pop();
                     }
@@ -35,31 +35,7 @@
         }
 
         int score = 0;
-        foreach (var item in illegalChars)
-        {
-            switch (item)
-            {
-                case ')':
-                    score += 3;
-                    break;
-
-                case ']':
-                    score += 57;
-                    break;
-
-                case '}':
-                    score += 1197;
-                    break;
-
-                case '>':
-                    score += 25137;
-                    break;
-
-                default:
-                    break;
-            }
-
-        }
+        illegalChars.ForEach(f => score += scoreMap[f]);
 
         Console.WriteLine(score);
         Console.ReadKey();
