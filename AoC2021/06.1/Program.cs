@@ -3,30 +3,30 @@
     static void Main()
     {
         
-        List<Fish> fish = File.ReadLines("in.txt").First().Split(',').Select(f => new Fish() { daysLeft = Convert.ToInt32(f) }).ToList();
+        List<Fish> fish = File.ReadLines("in.txt").First().Split(',').Select(f => new Fish() { DaysLeft = Convert.ToInt32(f) }).ToList();
 
         for (int i = 0; i < 256; i++)
         {
             int toAdd = 0;
 
-            Console.WriteLine($"{i} : {fish.Count()}");
+            Console.WriteLine($"{i} : {fish.Count}");
 
             foreach (var item in fish)
             {
-                if (item.daysLeft == 0)
+                if (item.DaysLeft == 0)
                 {
                     toAdd++;
-                    item.daysLeft = 6;
+                    item.DaysLeft = 6;
                 }
                 else
                 {
-                    item.daysLeft--;
+                    item.DaysLeft--;
                 }
             }
 
             for (int j = 0; j < toAdd; j++)
             {
-                fish.Add(new Fish() { daysLeft = 8 });
+                fish.Add(new Fish() { DaysLeft = 8 });
             }
 
         }
@@ -39,6 +39,6 @@
 
 class Fish
 {
-    public int daysLeft { get; set; }
+    public int DaysLeft { get; set; }
 }
 

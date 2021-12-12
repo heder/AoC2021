@@ -20,7 +20,7 @@
         int step = 0;
         while (true)
         {
-            // DumpState();
+            DumpState();
 
             // Increase
             for (int y = 0; y < sy; y++)

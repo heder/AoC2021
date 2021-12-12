@@ -23,7 +23,7 @@
             for (int x = 0; x < sx; x++)
             {
                 if (IsLowPoint(x, y))
-                    lowPoints.Add(new Coordinate() { x = x, y = y });
+                    lowPoints.Add(new Coordinate() { X = x, Y = y });
             }
         }
 
@@ -32,7 +32,7 @@
         foreach (var item in lowPoints)
         {
             basinSize = 1;
-            TraceBasin(item.x, item.y);
+            TraceBasin(item.X, item.Y);
             basins.Add(basinSize);
         }
 
@@ -120,6 +120,6 @@ class Position
 
 class Coordinate
 {
-    public int x { get; set; }
-    public int y { get; set; }
+    public int X { get; set; }
+    public int Y { get; set; }
 }

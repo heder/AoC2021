@@ -14,11 +14,11 @@
             for (int i = 0; i < line.Length; i++)
             {
                 char token = line[i];
-                if (tokens.Keys.Contains(token))
+                if (tokens.ContainsKey(token))
                 {
                     stack.Push(token);
                 }
-                else if (tokens.Values.Contains(token))
+                else if (tokens.ContainsValue(token))
                 {
                     if (tokens[stack.Peek()] == token)
                     {
