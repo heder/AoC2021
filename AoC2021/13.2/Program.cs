@@ -1,90 +1,96 @@
-﻿
-
-class Program
+﻿class Program
 {
     static void Main()
     {
         var lines = File.ReadLines("in.txt").ToArray();
 
-        Dictionary<string, Cave> caves = new();
+        int xs = 0;
+        int ys = 0;
 
-        foreach (var line in lines)
+        List<Tuple<char, int>> fold = new();
+
+        int l = 0;
+        while (lines[l].Length > 0)
         {
-            var path = line.Split('-');
-            var f = path[0];
-            var t = path[1];
+            var path = lines[l].Split(',');
+            var x = Convert.ToInt32(path[0]);
+            var y = Convert.ToInt32(path[1]);
 
-
-            if (caves.TryGetValue(f, out Cave? from) == false)
-            {
-                caves.Add(f, from = new Cave(f));
-
-                if (f.All(f => char.IsLower(f)))
-                    from.MaxVisits = 1;
-            }
-
-            if (caves.TryGetValue(t, out Cave? to) == false)
-            {
-                caves.Add(t, to = new Cave(t));
-
-                if (t.All(f => char.IsLower(f)))
-                    to.MaxVisits = 1;
-            }
-
-            from.Paths.Add(to);
-            to.Paths.Add(from);
+            xs = Math.Max(xs, x);
+            ys = Math.Max(ys, y);
+            l++;
         }
 
-        var startN = caves["start"];
-        var l = new List<string>();
-        
-        HashSet<string> paths = new();
+        xs++;
+        ys++;
 
-        var smallCaves = caves.Where(f => f.Value.MaxVisits == 1 && f.Key != "start" && f.Key != "end");
-        foreach (var item in smallCaves) // Adjust small caves one by one. This will produce some duplicate paths.
+        bool[,] paper = new bool[xs, ys];
+
+        int line = 0;
+        while (lines[line].Length > 0)
         {
-            item.Value.MaxVisits = 2;
-            l.Clear();
-            TraverseGraph(startN, l);
-            item.Value.MaxVisits = 1;
+            var path = lines[line].Split(',');
+            var x = Convert.ToInt32(path[0]);
+            var y = Convert.ToInt32(path[1]);
+
+            paper[x, y] = true;
+
+            line++;
         }
 
-        Console.WriteLine(paths.Count);
-        Console.ReadKey();
+        line++;
 
-
-        void TraverseGraph(Cave node, List<string> path)
+        for (int i = line; i < lines.Length; i++)
         {
-            path.Add(node.Name);
+            // Fold
+            var path = lines[i].Split('=');
+            fold.Add(new Tuple<char, int>(path[0].Last(), Convert.ToInt32(path[1])));
+        }
 
-            if (node.Name == "end")
+
+        foreach (var item in fold)
+        {
+            int foldalong = item.Item2;
+
+            if (item.Item1 == 'x')
             {
-                var p = string.Join(',', path.ToArray());
-                Console.WriteLine(p);
-                if (paths.Contains(p) == false) paths.Add(p); // ...yes, getting some duplicate paths due to the hacky twice-visit-fixup-thingy
-                return;
-            }
-            else
-            {
-                var dest = node.Paths.Where(f => f.MaxVisits == 0 || f.MaxVisits > 0 && path.Count(g => g.Contains(f.Name)) < f.MaxVisits);
-                foreach (var n in dest)
+                for (int y = 0; y < ys; y++)
                 {
-                    TraverseGraph(n, new List<string>(path));
+                    for (int x = 1; x <= foldalong; x++)
+                    {
+                        paper[foldalong - x, y] = paper[foldalong - x, y] || paper[foldalong + x, y];
+                    }
                 }
+
+                xs = foldalong;
+            }
+
+            if (item.Item1 == 'y')
+            {
+                for (int x = 0; x < xs; x++)
+                {
+                    for (int y = 1; y <= foldalong; y++)
+                    {
+                        paper[x, foldalong - y] = paper[x, foldalong - y] || paper[x, foldalong + y];
+                    }
+                }
+
+                ys = foldalong;
             }
         }
-    }
-}
 
-class Cave
-{
-    public Cave(string name)
-    {
-        Name = name;
-        Paths = new();
-    }
 
-    public string Name { get; set; }
-    public List<Cave> Paths { get; set; }
-    public int MaxVisits { get; set; }
+        for (int y = 0; y < ys; y++)
+        {
+            for (int x = 0; x < xs; x++)
+            {
+                if (paper[x, y] == true)
+                    Console.Write("#");
+                else
+                    Console.Write('.');
+            }
+
+            Console.WriteLine();
+        }
+    }
 }
