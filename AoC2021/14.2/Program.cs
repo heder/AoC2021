@@ -7,12 +7,11 @@ class Program
         var lines = File.ReadLines("in.txt").ToArray();
 
         int line = 0;
-
         string template = lines[line];
         line += 2;
 
         Dictionary<string, long> pairs = new();
-        Dictionary<string, char> map = new();
+        Dictionary<string, char> charMap = new();
         Dictionary<char, long> buckets = new();
 
         var x = template
@@ -26,59 +25,57 @@ class Program
             buckets.Add(item.letter, item.count);
         }
 
+        for (int i = 0; i < template.Length - 1; i++)
+        {
+            if (pairs.ContainsKey(template.Substring(i, 2)) == false)
+                pairs.Add(template.Substring(i, 2), 1);
+            else
+                pairs[template.Substring(i, 2)]++;
+        }
+
         while (line < lines.Length)
         {
             var splitted = lines[line].Split("->").Select(x => x.Trim()).ToArray();
-            map.Add(splitted[0], splitted[1][0]);
+            charMap.Add(splitted[0], splitted[1][0]);
+
+            if (buckets.ContainsKey(splitted[1][0]) == false)
+                buckets.Add(splitted[1][0], 0);
+
             line++;
         }
 
-        StringBuilder result = new();
-        for (int s = 0; s < 10; s++)
+        for (int s = 0; s < 40; s++)
         {
-            for (int i = 0; i < template.Length - 1; i++)
+            Dictionary<string, long> workPairs = new(pairs);
+
+            for (int i = 0; i < workPairs.Count; i++)
             {
-                char newletter = map[template.Substring(i, 2)];
-                string key = template.Substring(i, 1) + newletter;
+                var oldPair = workPairs.ElementAt(i);
+                var pair = pairs.ElementAt(i);
 
-                if (pairs.ContainsKey(key))
-                {
-                    pairs[key] *= 2;
-                    buckets[newletter] += pairs[key] * 2;
-                }
-                else
-                {
-                    pairs.Add(key, 0);
-                }
+                var newletter = charMap[pair.Key];
+                var newPair1 = $"{pair.Key[0]}{newletter}";
+                var newPair2 = $"{newletter}{pair.Key[1]}";
 
-                //pairs.Add(template.Substring(i, 1) + map[template.Substring(i, 2)], 1);
+                if (pairs.ContainsKey(newPair1) == false)
+                    pairs.Add(newPair1, 0);
 
-                //result.Append(template[i]);
-                //result.Append(map[template.Substring(i, 2)]);
-                ////result.Append(template[i + 1]);
+                if (pairs.ContainsKey(newPair2) == false)
+                    pairs.Add(newPair2, 0);
 
-                //buckets[template[i]]++;
-                //buckets[map[template.Substring(i, 2)]]++;
-
+                pairs[newPair1] += oldPair.Value;
+                pairs[newPair2] += oldPair.Value;
+                buckets[newletter] += oldPair.Value;
+                pairs[pair.Key] -= oldPair.Value;
             }
-
-            result.Append(template.Last());
-            buckets[template.Last()]++;
-
-            template = result.ToString();
-            result.Clear();
         }
 
-        var x = template
-            .GroupBy(f => f)
-            .Select(f => new { letter = f.Key, count = f.Count() })
-            .OrderBy(f => f.count)
-            .ToList();
+        long max = buckets.Max(f => f.Value);
+        long min = buckets.Min(f => f.Value);
 
-        int max = x.Last().count;
-        int min = x.First().count;
+        long res = max - min;
 
-        int res = max - min;
-
+        Console.WriteLine(res);
+        Console.ReadKey();
     }
 }
