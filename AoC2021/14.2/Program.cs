@@ -17,7 +17,6 @@ class Program
         var x = template
             .GroupBy(f => f)
             .Select(f => new { letter = f.Key, count = f.Count() })
-            .OrderBy(f => f.count)
             .ToList();
 
         foreach (var item in x)
