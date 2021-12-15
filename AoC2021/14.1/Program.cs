@@ -27,7 +27,6 @@ class Program
             {
                 result.Append(template[i]);
                 result.Append(map[template.Substring(i,2)]);
-                //result.Append(template[i + 1]);
             }
 
             result.Append(template.Last());
@@ -43,8 +42,9 @@ class Program
 
         int max = x.Last().count;
         int min = x.First().count;
-
         int res = max - min;
 
+        Console.WriteLine(res);
+        Console.ReadKey();
     }
 }
