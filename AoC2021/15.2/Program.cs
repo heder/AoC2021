@@ -20,7 +20,7 @@
         //Dump();
 
 
-        // Repl first row
+        // Repl right
         for (int xx = 0; xx < 4; xx++)
         {
 
@@ -43,7 +43,7 @@
 
         //Dump();
 
-        // Repl first row down
+        // Repl down
         for (int yy = 0; yy < 4; yy++)
         {
             for (int x = 0; x < sx; x++)
@@ -63,7 +63,7 @@
         sy *= 5;
         // Dump();
 
-        //map[0, 0].Risk = 0;
+        map[0, 0].Risk = 0;
         map[0, 0].Distance = 0;
 
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -87,18 +87,19 @@
 
                     if (x == 499 && y == 499)
                     {
+                        // Pass på vad som händer här. Nån off-by-one-scheisse på sista elementet.
                         var lastmin = nb.Min(f => map[f.X, f.Y].Distance + map[f.X, f.Y].Risk);
                         return lastmin;
                     }
 
-                    foreach (var item2 in nb)
+                    foreach (var item in nb)
                     {
-                        if (map[item2.X, item2.Y].Visited == false)
+                        if (map[item.X, item.Y].Visited == false)
                         {
-                            long distance = map[x, y].Distance + map[item2.X, item2.Y].Risk;
+                            long distance = map[x, y].Distance + map[item.X, item.Y].Risk;
 
-                            if (map[item2.X, item2.Y].Distance > distance)
-                                map[item2.X, item2.Y].Distance = distance;
+                            if (map[item.X, item.Y].Distance > distance)
+                                map[item.X, item.Y].Distance = distance;
                         }
                     }
 
@@ -163,7 +164,6 @@ class Position
 
     public long Risk { get; set; }
     public bool Visited { get; set; }
-
     public long Distance { get; set; }
 }
 
