@@ -69,16 +69,16 @@ class Program
             result.Clear();
         }
 
-        //var x = template
-        //    .GroupBy(f => f)
-        //    .Select(f => new { letter = f.Key, count = f.Count() })
-        //    .OrderBy(f => f.count)
-        //    .ToList();
+        var x = template
+            .GroupBy(f => f)
+            .Select(f => new { letter = f.Key, count = f.Count() })
+            .OrderBy(f => f.count)
+            .ToList();
 
-        //int max = x.Last().count;
-        //int min = x.First().count;
+        int max = x.Last().count;
+        int min = x.First().count;
 
-        //int res = max - min;
+        int res = max - min;
 
     }
 }
