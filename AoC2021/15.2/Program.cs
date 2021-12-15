@@ -87,7 +87,7 @@
 
                     if (x == 499 && y == 499)
                     {
-                        // Pass på vad som händer här. Nån off-by-one-scheisse på sista elementet.
+                        // Hantera sista element
                         var lastmin = nb.Min(f => map[f.X, f.Y].Distance + map[f.X, f.Y].Risk);
                         return lastmin;
                     }
