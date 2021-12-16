@@ -10,16 +10,36 @@ class Program
         var ba = ConvertHexToBitArray(line);
 
         int position = 0;
-        while (true)
+
+        DecodePacket();
+
+
+
+
+        void DecodePacket()
         {
-
             int version = GetValueFromBitarray(3, position, ba);
-            Console.WriteLine($"Packet ID: {version}");
+            Console.WriteLine($"Packet version: {version}");
 
-            position+=3;
+            position += 3;
 
             int type = GetValueFromBitarray(3, position, ba);
-            Console.WriteLine($"Packet Type: {type}");
+            Console.WriteLine($"Packet id: {type}");
+
+            if (type == 4)
+            {
+                // Packets with type ID 4 represent a literal value. Literal value packets encode a single binary number. To do this, the binary number is padded with leading zeroes until its length is a multiple of four bits, and then it is broken into groups of four bits. Each group is prefixed by a 1 bit except the last group, which is prefixed by a 0 bit.These groups of five bits immediately follow the packet header. For example, the hexadecimal string D2FE28 becomes:
+
+            }
+            else if (type == 0)
+            {
+                // If the length type ID is 0, then the next 15 bits are a number that represents the total length in bits of the sub-packets contained by this packet.
+            }
+            else if (type == 1)
+            {
+                // If the length type ID is 1, then the next 11 bits are a number that represents the number of sub-packets immediately contained by this packet.
+            }
+
 
             position += 3;
 
@@ -27,9 +47,9 @@ class Program
 
             position += 1;
 
-            int noOfSubPackets = GetValueFromBitarray(11, position, ba);
+            int noOfSubPackets = GetValueFromBitarray(15, position, ba);
             Console.WriteLine($"Packet length: {noOfSubPackets}");
-            position += 11;
+            position += 15;
 
             for (int i = 0; i < noOfSubPackets; i++)
             {
@@ -41,7 +61,6 @@ class Program
 
 
 
-
         int GetValueFromBitarray(int length, int pos, BitArray ba)
         {
             BitArray b = new BitArray(length);
@@ -50,6 +69,7 @@ class Program
                 b[i] = ba[pos];
                 pos++;
             }
+
             var v = new int[1];
             b.CopyTo(v, 0);
 
@@ -57,7 +77,7 @@ class Program
         }
 
     }
-
+}
 
 
 
