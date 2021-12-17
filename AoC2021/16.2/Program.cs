@@ -1,180 +1,153 @@
-﻿class Program
+﻿using System.Collections;
+using System.Globalization;
+
+class Program
 {
     static void Main()
     {
-        var lines = File.ReadLines("in.txt").ToArray();
+        var line = File.ReadAllText("in.txt");
 
-        int sx = lines[0].Length;
-        int sy = lines.Length;
+        var ba = ConvertHexToBitArray(line);
 
-        Position[,] map = new Position[sx * 5, sy * 5];
-        for (int y = 0; y < sy; y++)
+        int position = 0;
+        long totalVersion = 0;
+        var x = DecodePacket();
+        Console.WriteLine(x);
+        // ---
+
+        long DecodePacket()
         {
-            for (int x = 0; x < sx; x++)
+            long version = GetValueFromBitarray(3, position, ba);
+            Console.WriteLine($"Packet version: {version}");
+            position += 3;
+            totalVersion += version;
+
+            long type = GetValueFromBitarray(3, position, ba);
+            Console.WriteLine($"Packet id: {type}");
+            position += 3;
+
+            if (type == 4)
             {
-                map[x, y] = new();
-                map[x, y].Risk = Convert.ToInt32(char.GetNumericValue(lines[y][x]));
-            }
-        }
-
-        //Dump();
-
-
-        // Repl right
-        for (int xx = 0; xx < 4; xx++)
-        {
-
-            for (int y = 0; y < sy; y++)
-            {
-                for (int x = 0; x < sx; x++)
+                // Literal packet
+                List<bool> bitsList = new List<bool>();
+                while (true)
                 {
-                    int sourceX = (xx * sx) + x;
-                    int destX = (xx + 1) * sx + x;
+                    var status = ba[position];
+                    position++;
 
-                    map[destX, y] = new();
-                    map[destX, y].Risk = (map[sourceX, y].Risk == 9) ? 1 : map[sourceX, y].Risk + 1;
-                }
-            }
-
-
-        }
-
-        sx *= 5;
-
-        //Dump();
-
-        // Repl down
-        for (int yy = 0; yy < 4; yy++)
-        {
-            for (int x = 0; x < sx; x++)
-            {
-                for (int y = 0; y < sy; y++)
-                {
-                    int sourceY = (yy * sy) + y;
-                    int destY = (yy + 1) * sy + y;
-
-                    map[x, destY] = new();
-                    map[x, destY].Risk = (map[x, sourceY].Risk == 9) ? 1 : map[x, sourceY].Risk + 1;
-                }
-            }
-        }
-
-
-        sy *= 5;
-        // Dump();
-
-        map[0, 0].Risk = 0;
-        map[0, 0].Distance = 0;
-
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        sw.Start();
-        long res = DijkstraIsh(new Coordinate(0, 0), 0);
-        sw.Stop();
-        Console.WriteLine(sw.ElapsedMilliseconds);
-
-        Console.WriteLine(res);
-        Console.ReadKey();
-
-
-
-        long DijkstraIsh(Coordinate pos, int risk)
-        {
-            for (int y = 0; y < sy; y++)
-            {
-                for (int x = 0; x < sx; x++)
-                {
-                    var nb = GetNeighbours(x, y);
-
-                    if (x == 499 && y == 499)
+                    for (long i = 0; i < 4; i++)
                     {
-                        // Hantera sista element
-                        var lastmin = nb.Min(f => map[f.X, f.Y].Distance + map[f.X, f.Y].Risk);
-                        return lastmin;
+                        bitsList.Add(ba[position]);
+                        position++;
                     }
 
-                    foreach (var item in nb)
+                    if (status == false)
                     {
-                        if (map[item.X, item.Y].Visited == false)
-                        {
-                            long distance = map[x, y].Distance + map[item.X, item.Y].Risk;
-
-                            if (map[item.X, item.Y].Distance > distance)
-                                map[item.X, item.Y].Distance = distance;
-                        }
+                        var bl = bitsList.ToArray();
+                        long val = GetValueFromBitarray(bitsList.Count, 0, new BitArray(bl));
+                        Console.WriteLine($"Literal: {val}");
+                        return val;
                     }
-
-                    map[x, y].Visited = true;
                 }
             }
-
-            return -1;
-
-        }
-
-        List<Coordinate> GetNeighbours(int x, int y)
-        {
-            List<Coordinate> ret = new();
-            //if (TryGetVal(x - 1, y - 1)) ret.Add(new Coordinate(x - 1, y - 1));
-            if (TryGetVal(x, y - 1)) ret.Add(new Coordinate(x, y - 1));
-            //if (TryGetVal(x + 1, y - 1)) ret.Add(new Coordinate(x + 1, y - 1));
-
-            if (TryGetVal(x - 1, y)) ret.Add(new Coordinate(x - 1, y));
-            if (TryGetVal(x + 1, y)) ret.Add(new Coordinate(x + 1, y));
-
-            //if (TryGetVal(x - 1, y + 1)) ret.Add(new Coordinate(x - 1, y + 1));
-            if (TryGetVal(x, y + 1)) ret.Add(new Coordinate(x, y + 1));
-            //if (TryGetVal(x + 1, y + 1)) ret.Add(new Coordinate(x + 1, y + 1));
-
-            return ret;
-        }
-
-
-        bool TryGetVal(int x, int y)
-        {
-            if (x < 0 || y < 0 || x > map.GetUpperBound(0) || y > map.GetUpperBound(1))
-                return false;
             else
-                return true;
-        }
-
-
-        void Dump()
-        {
-            for (int y = 0; y < sy; y++)
             {
-                for (int x = 0; x < sx; x++)
+                // Operator packet
+                var lengthTypeId = ba[position];
+                Console.WriteLine($"Length type ID: {lengthTypeId}");
+                position++;
+
+                List<long> subPacketLiterals = new();
+                if (lengthTypeId == false)
                 {
-                    Console.Write(map[x, y].Risk);
+                    // 15 bits that represent the total length in bits of the subpackets contained by this packet
+                    long totalSubpacketLength = GetValueFromBitarray(15, position, ba);
+                    Console.WriteLine($"Total subpacket length: {totalSubpacketLength}");
+                    position += 15;
+
+                    long currentpos = position;
+                    while (position < currentpos + totalSubpacketLength)
+                    {
+                        subPacketLiterals.Add(DecodePacket());
+                    }
+
+                }
+                else if (lengthTypeId == true)
+                {
+                    // 11 bits that represents the number of sub-packets immediately contained by this packet
+                    long totalNoOfSubpackets = GetValueFromBitarray(11, position, ba);
+                    Console.WriteLine($"No of subpackets: {totalNoOfSubpackets}");
+                    position += 11;
+
+                    for (long i = 0; i < totalNoOfSubpackets; i++)
+                    {
+                        subPacketLiterals.Add(DecodePacket());
+                    }
                 }
 
-                Console.WriteLine();
+                switch (type)
+                {
+                    case 0: // SUM
+                        long sum = subPacketLiterals.Sum();
+                        return sum;
+
+                    case 1: // PRODUCT
+                        long product = 1;
+                        foreach (var item in subPacketLiterals)
+                        {
+                            product *= item;
+                        }
+                        return product;
+
+                    case 2: // MIN
+                        var min = subPacketLiterals.Min();
+                        return min;
+
+                    case 3: // MAX
+                        var max = subPacketLiterals.Max();
+                        return max;
+
+                    case 5: // GT
+                        var gt = Convert.ToInt32(subPacketLiterals[0] > subPacketLiterals[1]);
+                        return gt;
+
+                    case 6: // LT
+                        var lt = Convert.ToInt32(subPacketLiterals[0] < subPacketLiterals[1]);
+                        return lt;
+
+                    case 7: // EQ
+                        var eq = Convert.ToInt32(subPacketLiterals[0] == subPacketLiterals[1]);
+                        return eq;
+
+                    default:
+                        throw new Exception("unknown operator");
+                }
+            }
+
+            long GetValueFromBitarray(int length, int pos, BitArray ba)
+            {
+                string bits = "";
+                for (int i = 0; i < length; i++)
+                {
+                    bits += (ba[pos + i]) ? "1" : "0";
+                }
+
+                return Convert.ToInt64(bits, 2);
             }
         }
-
     }
-}
 
-
-class Position
-{
-    public Position()
+    private static BitArray ConvertHexToBitArray(string hexData)
     {
-        Distance = int.MaxValue;
+        BitArray ba = new BitArray(4 * hexData.Length);
+        for (int i = 0; i < hexData.Length; i++)
+        {
+            byte b = byte.Parse(hexData[i].ToString(), NumberStyles.HexNumber);
+            for (int j = 0; j < 4; j++)
+            {
+                ba.Set(i * 4 + j, (b & (1 << (3 - j))) != 0);
+            }
+        }
+        return ba;
     }
-
-    public long Risk { get; set; }
-    public bool Visited { get; set; }
-    public long Distance { get; set; }
-}
-
-class Coordinate
-{
-    public Coordinate(int x, int y)
-    {
-        X = x;
-        Y = y;
-    }
-
-    public int X;
-    public int Y;
 }

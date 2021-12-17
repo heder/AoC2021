@@ -10,83 +10,95 @@ class Program
         var ba = ConvertHexToBitArray(line);
 
         int position = 0;
-
+        long totalVersion = 0;
         DecodePacket();
-
-
-
+        Console.WriteLine(totalVersion);
+        // ---
 
         void DecodePacket()
         {
-            int version = GetValueFromBitarray(3, position, ba);
+            long version = GetValueFromBitarray(3, position, ba);
             Console.WriteLine($"Packet version: {version}");
-
             position += 3;
+            totalVersion += version;
 
-            int type = GetValueFromBitarray(3, position, ba);
+            long type = GetValueFromBitarray(3, position, ba);
             Console.WriteLine($"Packet id: {type}");
+            position += 3;
 
             if (type == 4)
             {
-                // Packets with type ID 4 represent a literal value. Literal value packets encode a single binary number. To do this, the binary number is padded with leading zeroes until its length is a multiple of four bits, and then it is broken into groups of four bits. Each group is prefixed by a 1 bit except the last group, which is prefixed by a 0 bit.These groups of five bits immediately follow the packet header. For example, the hexadecimal string D2FE28 becomes:
+                // Literal packet
+                List<bool> bitsList = new List<bool>();
+                while (true)
+                {
+                    var status = ba[position];
+                    position++;
 
+                    for (long i = 0; i < 4; i++)
+                    {
+                        bitsList.Add(ba[position]);
+                        position++;
+                    }
+
+                    if (status == false)
+                    {
+                        var bl = bitsList.ToArray();
+                        long val = GetValueFromBitarray(bitsList.Count, 0, new BitArray(bl));
+                        Console.WriteLine($"Literal: {val}");
+                        break;
+                    }
+                }
             }
-            else if (type == 0)
+            else
             {
-                // If the length type ID is 0, then the next 15 bits are a number that represents the total length in bits of the sub-packets contained by this packet.
+                // Operator packet
+                var lengthTypeId = ba[position];
+                Console.WriteLine($"Length type ID: {lengthTypeId}");
+                position++;
+
+                if (lengthTypeId == false)
+                {
+                    // 15 bits that represent the total length in bits of the subpackets contained by this packet
+                    long totalSubpacketLength = GetValueFromBitarray(15, position, ba);
+                    Console.WriteLine($"Total subpacket length: {totalSubpacketLength}");
+                    position += 15;
+
+                    long currentpos = position;
+                    while (position < currentpos + totalSubpacketLength)
+                    {
+                        DecodePacket();
+                    }
+                }
+                else if (lengthTypeId == true)
+                {
+                    // 11 bits that represents the number of sub-packets immediately contained by this packet
+                    long totalNoOfSubpackets = GetValueFromBitarray(11, position, ba);
+                    Console.WriteLine($"No of subpackets: {totalNoOfSubpackets}");
+                    position += 11;
+
+                    for (long i = 0; i < totalNoOfSubpackets; i++)
+                    {
+                        DecodePacket();
+                    }
+                }
             }
-            else if (type == 1)
+
+            long GetValueFromBitarray(int length, int pos, BitArray ba)
             {
-                // If the length type ID is 1, then the next 11 bits are a number that represents the number of sub-packets immediately contained by this packet.
-            }
+                string bits = "";
+                for (int i = 0; i < length; i++)
+                {
+                    bits += (ba[pos + i]) ? "1" : "0";
+                }
 
-
-            position += 3;
-
-            Console.WriteLine($"Packet length type: {ba[position]}");
-
-            position += 1;
-
-            int noOfSubPackets = GetValueFromBitarray(15, position, ba);
-            Console.WriteLine($"Packet length: {noOfSubPackets}");
-            position += 15;
-
-            for (int i = 0; i < noOfSubPackets; i++)
-            {
-                int subPacket = GetValueFromBitarray(11, position, ba);
-                Console.WriteLine($"Subpacket: {subPacket}");
-                position += 11;
+                return Convert.ToInt64(bits, 2);
             }
         }
-
-
-
-        int GetValueFromBitarray(int length, int pos, BitArray ba)
-        {
-            BitArray b = new BitArray(length);
-            for (int i = length - 1; i >= 0; i--)
-            {
-                b[i] = ba[pos];
-                pos++;
-            }
-
-            var v = new int[1];
-            b.CopyTo(v, 0);
-
-            return v[0];
-        }
-
     }
-}
 
-
-
-
-    public static BitArray ConvertHexToBitArray(string hexData)
+    private static BitArray ConvertHexToBitArray(string hexData)
     {
-        if (hexData == null)
-            return null; // or do something else, throw, ...
-
         BitArray ba = new BitArray(4 * hexData.Length);
         for (int i = 0; i < hexData.Length; i++)
         {
@@ -99,110 +111,3 @@ class Program
         return ba;
     }
 }
-
-//        int sx = lines[0].Length;
-//        int sy = lines.Length;
-
-//        Position[,] map = new Position[sx, sy];
-//        for (int y = 0; y < sy; y++)
-//        {
-//            for (int x = 0; x < sx; x++)
-//            {
-//                map[x, y] = new();
-//                map[x, y].Risk = Convert.ToInt32(char.GetNumericValue(lines[y][x]));
-//            }
-//        }
-
-//        map[0, 0].Risk = 0;
-//        map[0, 0].Distance = 0;
-//        DijkstraIsh(new Coordinate(0, 0), 0);
-
-//        int xxx = map[sx - 1, sy - 1].Distance;
-
-//        Console.WriteLine(xxx);
-//        Console.ReadKey();
-
-
-
-//        void DijkstraIsh(Coordinate pos, int risk)
-//        {
-//            for (int y = 0; y < sx; y++)
-//            {
-//                for (int x = 0; x < sy; x++)
-//                {
-//                    var nb = GetNeighbours(x, y);
-
-//                    foreach (var item2 in nb)
-//                    {
-//                        if (map[item2.X, item2.Y].Visited == false)
-//                        {
-//                            int distance = map[x, y].Distance + map[item2.X, item2.Y].Risk;
-
-//                            if (map[item2.X, item2.Y].Distance > distance)
-//                                map[item2.X, item2.Y].Distance = distance;
-//                        }
-//                    }
-
-//                    map[x, y].Visited = true;
-//                }
-//            }
-
-//            Console.WriteLine();
-//            Console.ReadKey();
-
-//        }
-
-//        List<Coordinate> GetNeighbours(int x, int y)
-//        {
-//            List<Coordinate> ret = new();
-//            //if (TryGetVal(x - 1, y - 1)) ret.Add(new Coordinate(x - 1, y - 1));
-//            if (TryGetVal(x, y - 1)) ret.Add(new Coordinate(x, y - 1));
-//            //if (TryGetVal(x + 1, y - 1)) ret.Add(new Coordinate(x + 1, y - 1));
-
-//            if (TryGetVal(x - 1, y)) ret.Add(new Coordinate(x - 1, y));
-//            if (TryGetVal(x + 1, y)) ret.Add(new Coordinate(x + 1, y));
-
-//            //if (TryGetVal(x - 1, y + 1)) ret.Add(new Coordinate(x - 1, y + 1));
-//            if (TryGetVal(x, y + 1)) ret.Add(new Coordinate(x, y + 1));
-//            //if (TryGetVal(x + 1, y + 1)) ret.Add(new Coordinate(x + 1, y + 1));
-
-//            return ret;
-//        }
-
-
-//        bool TryGetVal(int x, int y)
-//        {
-//            if (x < 0 || y < 0 || x > map.GetUpperBound(0) || y > map.GetUpperBound(1))
-//                return false;
-//            else
-//                return true;
-//        }
-
-//    }
-//}
-
-
-//class Position
-//{
-//    public Position()
-//    {
-//        Distance = int.MaxValue;
-//    }
-
-//    public int Risk { get; set; }
-//    public bool Visited { get; set; }
-
-//    public int Distance { get; set; }
-//}
-
-//class Coordinate
-//{
-//    public Coordinate(int x, int y)
-//    {
-//        X = x;
-//        Y = y;
-//    }
-
-//    public int X;
-//    public int Y;
-//}
