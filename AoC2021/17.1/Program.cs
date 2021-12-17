@@ -21,21 +21,19 @@
 
         int maxHeight = int.MinValue;
 
-        // Brute force deluxe
-        for (int x = 0; x < 500; x++)
+        
+        for (int x = 0; x < 500; x++) // Brute force deluxe
         {
             for (int y = 0; y < 500; y++)
             {
-                // Naming explanation
-                // https://youtu.be/UDc3ZEKl-Wc?t=105
-                BananaThrow(x, y);
+                Throw(x, y);
             }
         }
 
         Console.WriteLine(maxHeight);
 
 
-        void BananaThrow(int x, int y)
+        void Throw(int x, int y)
         {
             Coordinate currentPosition = new Coordinate() { X = 0, Y = 0 };
             Vector speed = new Vector(x, y);

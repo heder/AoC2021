@@ -21,21 +21,19 @@
 
         HashSet<string> hit = new();
 
-        // Brute force deluxe
-        for (int x = -1000; x < 1000; x++)
+        
+        for (int x = -1000; x < 1000; x++) // Brute force deluxe
         {
             for (int y = -1000; y < 1000; y++)
             {
-                // Naming explanation
-                // https://youtu.be/UDc3ZEKl-Wc?t=105
-                BananaThrow(x, y);
+                Throw(x, y);
             }
         }
 
         int c = hit.Distinct().Count();
         Console.WriteLine(c);
 
-        void BananaThrow(int x, int y)
+        void Throw(int x, int y)
         {
             Coordinate currentPosition = new Coordinate() { X = 0, Y = 0 };
             Vector speed = new Vector(x, y);
@@ -46,17 +44,10 @@
                 speed.AdjustSpeed();
 
                 if (currentPosition.X > xupper || currentPosition.Y < ylower)
-                {
-                    //Console.WriteLine("miss");
                     break;
-                }
 
-                // Is inside
                 if (currentPosition.X <= xupper && currentPosition.X >= xlower && currentPosition.Y <= yupper && currentPosition.Y >= ylower)
                 {
-                    //Console.WriteLine($"inside.");
-                    //maxHeight = Math.Max(maxHeight, height);
-                    //Console.WriteLine($"maxheight so far: {maxHeight}");
                     hit.Add($"{x},{y}");
                 }
             }
