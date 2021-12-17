@@ -4,14 +4,10 @@
     {
         var line = File.ReadAllText("in.txt");
 
-        var a = line.Split(':');
-        var b = a[1].Split(",");
+        var b = line.Split(':')[1].Split(",");
 
-        var c1 = b[0].Split("=");
-        var c2 = b[1].Split("=");
-
-        var d1 = c1[1].Split("..");
-        var d2 = c2[1].Split("..");
+        var d1 = b[0].Split("=")[1].Split("..");
+        var d2 = b[1].Split("=")[1].Split("..");
 
         var xlower = Convert.ToInt32(d1[0]);
         var xupper = Convert.ToInt32(d1[1]);
