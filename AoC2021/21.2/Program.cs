@@ -4,112 +4,186 @@
     {
         var lines = File.ReadLines("in.txt").ToArray();
 
-        List<Player> players = new List<Player>();
+        //List<Player> players = new List<Player>();
+        Dictionary<string, Game> games = new Dictionary<string, Game>();
 
-        foreach (var line in lines)
+        var g = new Game();
+        g.ActiveGames = 1;
+        g.p1 = new Player() { CurrentPosition = Convert.ToInt32(lines[0][28].ToString()) };
+        g.p2 = new Player() { CurrentPosition = Convert.ToInt32(lines[1][28].ToString()) };
+
+        long p1w = 0;
+        long p2w = 0;
+
+        games.Add(g.GameState(), g);
+
+        while (games.Any(f => f.Value.ActiveGames > 0))
         {
-            players.Add(new Player() { n = 1, Id = Convert.ToInt32(line[7].ToString()), CurrentPosition = Convert.ToInt32(line[28].ToString()) });
-        }
+            Console.WriteLine(games.Count());
 
+            //games = games.Where(f => f.Value.ActiveGames > 0).ToDictionary(f => f.Key, f => f.Value);
 
-        long boardState[,] = new long[11,]
-
-        //int[] NoOfPlayerOneWithScore = new int[22];
-        //int[] NoOfPlayerTwoWithScore = new int[22];
-
-        //int[] NoOfPlayer1OnPosition = new int[11];
-        //int[] NoOfPlayer2OnPosition = new int[11];
-
-        //NoOfPlayerOneWithScore[0]++;
-        //NoOfPlayerTwoWithScore[0]++;
-
-        //NoOfPlayer1OnPosition[players[0].CurrentPosition]++;
-        //NoOfPlayer2OnPosition[players[1].CurrentPosition]++;
-
-        while(true)
-        {
-            foreach (var player in players)
+            var gc1 = games.Count;
+            for (int i = 0; i < gc1; i++)
             {
-                player.Step(1);
+                var game = games.ElementAt(i);
+                if (game.Value.ActiveGames > 0)
+                {
+
+                    {
+                        // Play P1
+                        var g1 = new Game(game.Value);
+                        g1.p1.Step(1);
+                        if (games.TryAdd(g1.GameState(), g1))
+                            games[g1.GameState()].ActiveGames = game.Value.ActiveGames;
+                        else
+                            games[g1.GameState()].NewActiveGames += game.Value.ActiveGames;
+
+                        var g2 = new Game(game.Value);
+                        g2.p1.Step(2);
+
+                        if (games.TryAdd(g2.GameState(), g2))
+                            games[g2.GameState()].ActiveGames = game.Value.ActiveGames;
+                        else
+                            games[g2.GameState()].NewActiveGames += (game.Value.ActiveGames);
+
+                        var g3 = new Game(game.Value);
+                        g3.p1.Step(3);
+
+                        if (games.TryAdd(g3.GameState(), g3))
+                            games[g3.GameState()].ActiveGames = game.Value.ActiveGames;
+                        else
+                            games[g3.GameState()].NewActiveGames += (game.Value.ActiveGames);
+
+                        game.Value.ActiveGames = 0;
+                    }
+                }
+            }
+
+            foreach (var item in games)
+            {
+                item.Value.ActiveGames += item.Value.NewActiveGames;
+                item.Value.NewActiveGames = 0;
+            }
+            foreach (var item in games)
+            {
+                if (item.Value.p1.Score >= 21)
+                {
+                    p1w += item.Value.ActiveGames;
+                    item.Value.ActiveGames = 0;
+                }
             }
 
 
-            // Player 1 throws
-            // Multiply all positions in NoOfPlayers with 3
 
 
-            // Multiply players on board
+            var gc2 = games.Count;
+            for (int i = 0; i < gc2; i++)
+            {
+                var game = games.ElementAt(i);
+                if (game.Value.ActiveGames > 0)
+                {
 
-            // Play
-            //int[] newState = new int[11];
-            //for (int i = 1; i <= 10; i++)
-            //{
-            //    NoOfPlayer1OnPosition[i + 1] += NoOfPlayer1OnPosition[i];
-            //    NoOfPlayerOneWithScore[]
-            //    NoOfPlayer1OnPosition[i + 2] += NoOfPlayer1OnPosition[i];
-            //    NoOfPlayer1OnPosition[i + 3] += NoOfPlayer1OnPosition[i];
-            //    NoOfPlayer1OnPosition[i] = 0;
-            //}
+                    {
+                        // Play P2
+                        var g1 = new Game(game.Value);
+                        g1.p2.Step(1);
 
+                        if (games.TryAdd(g1.GameState(), g1))
+                            games[g1.GameState()].ActiveGames = game.Value.ActiveGames;
+                        else
+                            games[g1.GameState()].NewActiveGames += (game.Value.ActiveGames);
+
+
+                        var g2 = new Game(game.Value);
+                        g2.p2.Step(2);
+
+                        if (games.TryAdd(g2.GameState(), g2))
+                            games[g2.GameState()].ActiveGames = game.Value.ActiveGames;
+                        else
+                            games[g2.GameState()].NewActiveGames += (game.Value.ActiveGames);
+
+                        var g3 = new Game(game.Value);
+                        g3.p2.Step(3);
+
+                        if (games.TryAdd(g3.GameState(), g3))
+                            games[g3.GameState()].ActiveGames = game.Value.ActiveGames;
+                        else
+                            games[g3.GameState()].NewActiveGames += (game.Value.ActiveGames);
+
+                        game.Value.ActiveGames = 0;
+                    }
+                }
+            }
+
+            foreach (var item in games)
+            {
+                item.Value.ActiveGames += item.Value.NewActiveGames;
+                item.Value.NewActiveGames = 0;
+            }
+            foreach (var item in games)
+            {
+                if (item.Value.p2.Score >= 21)
+                {
+                    p2w += item.Value.ActiveGames;
+                    item.Value.ActiveGames = 0;
+                }
+            }
+
+            Console.WriteLine($"p1w: {p1w} : p2w: {p2w}");
 
         }
 
-
-        //Dice d = new Dice();
-        //while (true)
-        //{
-        //    foreach (var player in players)
-        //    {
-        //        int moves = d.GetNext();
-        //        player.Step(moves);
-
-        //        if (player.Score >= 1000)
-        //        {
-        //            Console.WriteLine($"Player {player.Id} wins with score {player.Score}");
-        //            Console.WriteLine($"Dice thrown {d.Throws} times)");
-        //            Console.WriteLine($"Losing player has score {players.First(f => f.Id != player.Id).Score})");
-
-        //            int i = d.Throws * players.First(f => f.Id != player.Id).Score;
-        //            Console.WriteLine($"{i}");
-        //            Console.ReadLine();
-        //        }
-        //    }
-        //}
+        Console.WriteLine(p1w);
+        Console.WriteLine(p2w);
+        Console.ReadKey();
     }
 }
 
-class Dice
+
+
+class Game
 {
-    public int Throws;
-    public int Current;
 
-    public void Step()
+    public Game(Game c)
     {
-        if (Current < 100)
-            Current++;
-        else
-            Current = 1;
+        p1 = new Player(c.p1);
+        p2 = new Player(c.p2);
+        //ActiveGames = c.ActiveGames;
     }
 
-    public int GetNext()
+    public Game()
     {
-        int score = 0;
-        for (int i = 0; i < 3; i++)
-        {
-            Throws++;
-            Step();
-            score += Current;
-        }
-
-        return score;
+        p1 = new Player();
+        p2 = new Player();
     }
+
+    public long ActiveGames { get; set; }
+
+    public long NewActiveGames { get; set; }
+
+    public string GameState()
+    {
+        return $"{p1.CurrentPosition},{p1.Score},{p2.CurrentPosition},{p2.Score}";
+    }
+
+    public Player p1 { get; set; }
+    public Player p2 { get; set; }
 }
+
 
 class Player
 {
-    public long n;
+    public Player()
+    {
+    }
 
-    public int Id;
+    public Player(Player c)
+    {
+        Score = c.Score;
+        CurrentPosition = c.CurrentPosition;
+    }
+
     public int Score;
     public int CurrentPosition;
 
@@ -125,8 +199,4 @@ class Player
 
         Score += CurrentPosition;
     }
-}
-
-class Board
-{
 }
