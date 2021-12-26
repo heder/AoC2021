@@ -85,7 +85,6 @@
                                 map[0, y] = Cucumber.Right;
                                 map[x, y] = Cucumber.Empty;
                                 moved++;
-                                //x++; // Skip ahead
                             }
                         }
                         // If right position free, move
@@ -120,7 +119,6 @@
                                 map[x, 0] = Cucumber.Down;
                                 map[x, y] = Cucumber.Empty;
                                 moved++;
-                                //x++; // Skip ahead
                             }
                         }
                         // If below position free, move
@@ -164,33 +162,5 @@
 
             Console.WriteLine();
         }
-
-
-        //List<Coordinate> GetNeighbours(int x, int y)
-        //{
-        //    List<Coordinate> ret = new();
-        //    //if (TryGetVal(x - 1, y - 1)) ret.Add(new Coordinate(x - 1, y - 1));
-        //    if (TryGetVal(x, y - 1)) ret.Add(new Coordinate(x, y - 1));
-        //    //if (TryGetVal(x + 1, y - 1)) ret.Add(new Coordinate(x + 1, y - 1));
-
-        //    if (TryGetVal(x - 1, y)) ret.Add(new Coordinate(x - 1, y));
-        //    if (TryGetVal(x + 1, y)) ret.Add(new Coordinate(x + 1, y));
-
-        //    //if (TryGetVal(x - 1, y + 1)) ret.Add(new Coordinate(x - 1, y + 1));
-        //    if (TryGetVal(x, y + 1)) ret.Add(new Coordinate(x, y + 1));
-        //    //if (TryGetVal(x + 1, y + 1)) ret.Add(new Coordinate(x + 1, y + 1));
-
-        //    return ret;
-        //}
-
-
-        //bool TryGetVal(int x, int y)
-        //{
-        //    if (x < 0 || y < 0 || x > map.GetUpperBound(0) || y > map.GetUpperBound(1))
-        //        return false;
-        //    else
-        //        return true;
-        //}
-
     }
 }
